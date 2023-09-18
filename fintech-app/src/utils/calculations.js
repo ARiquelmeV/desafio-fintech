@@ -2,7 +2,8 @@ import financialData from '../models/financialData';
 import { fetchStockData } from './api'; // Importa la función de consulta de la API
 
 async function calcularInversion(amount, years) {
-    const symbols = ["SPY", "QQQ", "MDY"];
+    //const symbols = ["SPY", "QQQ", "MDY"];
+    const symbols = ["SPY", "QQQ"];
     const thisYear = new Date().getFullYear()
     const listaFinancialData = [
         { ...financialData },
@@ -17,7 +18,7 @@ async function calcularInversion(amount, years) {
             listaFinancialData[i].yearStart = thisYear - years
             let data  = await fetchStockData(symbols[i], (thisYear - years));
             listaFinancialData[i].closePricesStart = data['Time Series (60min)'][Object.keys(data['Time Series (60min)'])[0]]['4. close']
-            listaFinancialData[i].ETFAmount = (listaFinancialData[i].closePricesStart/(amount/symbols.length))
+            listaFinancialData[i].ETFAmount = ((amount/symbols.length)/listaFinancialData[i].closePricesStart)
             
             // Inversion en año actual
             listaFinancialData[i].yearEnd = thisYear

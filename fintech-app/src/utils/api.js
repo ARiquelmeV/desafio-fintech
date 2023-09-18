@@ -4,7 +4,7 @@ import axios from 'axios';
 const queryClient = new QueryClient();
 
 const fetchStockData = async (symbol, yearToFetch) => {
-    const apiKey = 'J8XZLA662R3VLAAG' // Reemplaza con tu clave de API de Alpha Vantage
+    const apiKey = 'WYS45K7CCR5WHT9A' // Reemplaza con tu clave de API de Alpha Vantage
     console.log(`api.js: https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&month=${yearToFetch}-01&outputsize=compact&apikey=${apiKey}`);
 
     const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&month=${yearToFetch}-01&outputsize=compact&apikey=${apiKey}`

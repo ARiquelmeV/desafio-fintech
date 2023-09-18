@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { calcularInversion } from '../utils/calculations';
+import MyChartComponent  from './MyChartComponent'; 
 
 function Calculator() {
   const [amount, setAmount] = useState(0); // Inicializa amount como un número entero (0)
   const [years, setYears] = useState(1);  // Inicializa years como un número entero (1)
   const [investmentData, setInvestmentData] = useState([{}, {}, {}]);
   const [errorVisible, setErrorVisible] = useState(false);
+  const [calculationComplete, setCalculationComplete] = useState(false);
 
   async function handleCalculateAsync() {
     try {
@@ -20,18 +22,33 @@ function Calculator() {
       // Restablecer el estado de error
       setErrorVisible(false);
   
-      console.log('a la función calcularInversion va esto:', amountValue, yearsValue);
+      //console.log('a la función calcularInversion va esto:', amountValue, yearsValue);
       const investmentData = await calcularInversion(amountValue, yearsValue);
       setInvestmentData(investmentData);
-      console.log('le pasé a investmentData esto:', investmentData);
+      //console.log('le pasé a investmentData esto:', investmentData);
+      setCalculationComplete(true);
+      
       return;
     } catch (error) {
       console.error('Error al calcular la inversión:', error);
       throw error;
     }
   }
-  
-  
+  let newAmount = 0
+      for (let i = 0; i < investmentData.length; i++) {
+          console.log("newamount: ", amount, investmentData.length, investmentData[i].yield)
+          newAmount = newAmount + ((amount/investmentData.length) * (investmentData[i].yield / 100)) 
+      }
+  const chartData = {
+    labels: [investmentData[0].yearStart, new Date().getFullYear()], // Etiquetas de los ejes X
+    datasets: [
+      {
+        label: 'Posible Inversion',
+        data: [amount, newAmount],
+      },
+      // Agrega más conjuntos de datos según tus necesidades
+    ],
+  };
   return (
     <div className="container mx-auto mt-10">
       <h1 className="text-2xl font-semibold mb-4">Simulador de Inversión</h1>
@@ -93,30 +110,43 @@ function Calculator() {
           Calcular
           </button>
       </div>
+      {calculationComplete && (
+        <>
+          {investmentData.map((data, index) => (
+            <div key={index}>
+              <h2 className="text-xl font-semibold mt-6">Datos de Inversión - {data.symbol}</h2>
+              <table className="border-collapse w-full border">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 bg-gray-200 text-center border">Precio año {data.yearStart}</th>
+                    <th className="py-2 px-4 bg-gray-200 text-center border">Precio actual</th>
+                    <th className="py-2 px-4 bg-gray-200 text-center border">Cantidad de Tokens ETF</th>
+                    <th className="py-2 px-4 bg-gray-200 text-center border">Rendimiento (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="py-2 px-4 text-center border">{data.closePricesStart}</td>
+                    <td className="py-2 px-4 text-center border">{data.closePricesEnd}</td>
+                    <td className="py-2 px-4 text-center border">{data.ETFAmount}</td>
+                    <td className="py-2 px-4 text-center border">{data.yield}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </>
+      )}
 
-      {investmentData.map((data, index) => (
-        <div key={index}>
-          <h2 className="text-xl font-semibold mt-6">Datos de Inversión - {data.symbol}</h2>
-          <table className="border-collapse w-full border">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 bg-gray-200 text-center border">Precio año {data.yearStart}</th>
-              <th className="py-2 px-4 bg-gray-200 text-center border">Precio actual</th>
-              <th className="py-2 px-4 bg-gray-200 text-center border">Cantidad de Tokens ETF</th>
-              <th className="py-2 px-4 bg-gray-200 text-center border">Rendimiento (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="py-2 px-4 text-center border">{data.closePricesStart}</td>
-              <td className="py-2 px-4 text-center border">{data.closePricesEnd}</td>
-              <td className="py-2 px-4 text-center border">{data.ETFAmount}</td>
-              <td className="py-2 px-4 text-center border">{data.yield}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="container">
+        <div className="card">
+          {calculationComplete && (
+            <MyChartComponent data={chartData} />
+          )}
         </div>
-      ))}
+      </div>
+
+
     </div>
   );
 }
